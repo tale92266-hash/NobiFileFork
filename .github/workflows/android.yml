@@ -15,12 +15,12 @@ jobs:
         java-version: '21'
     - name: Restore NobiFile signing key (if secrets are set)
       run: |
-        if [ -n "$NOBIFILE_KEYSTORE_B64" ]; then
-          echo "$NOBIFILE_KEYSTORE_B64" | base64 -d > nobifile.keystore
+        if [ -n "$NOBIFILE_KEYSTORE_BASE64" ]; then
+          echo "$NOBIFILE_KEYSTORE_BASE64" | base64 -d > nobifile.keystore
           echo "NOBIFILE_KEYSTORE_FILE=$PWD/nobifile.keystore" >> $GITHUB_ENV
         fi
       env:
-        NOBIFILE_KEYSTORE_B64: ${{ secrets.NOBIFILE_KEYSTORE_B64 }}
+        NOBIFILE_KEYSTORE_BASE64: ${{ secrets.NOBIFILE_KEYSTORE_BASE64 }}
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
