@@ -21,6 +21,8 @@ jobs:
         fi
       env:
         NOBIFILE_KEYSTORE_B64: ${{ secrets.NOBIFILE_KEYSTORE_B64 }}
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew assembleDebug lintVitalRelease
       env:
