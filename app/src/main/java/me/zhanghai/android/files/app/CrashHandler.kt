@@ -11,9 +11,12 @@ package me.zhanghai.android.files.app
 
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
 import android.text.method.ScrollingMovementMethod
 import android.util.Log
 import android.widget.ScrollView
@@ -29,6 +32,7 @@ import java.util.Locale
 object CrashHandler {
 
     private const val FILE_NAME = "crash-report.txt"
+    private const val DOWNLOAD_FILE_NAME = "NobiFile-crash-report.txt"
     private const val MAX_BYTES = 200 * 1024
 
     fun install() {
@@ -36,8 +40,8 @@ object CrashHandler {
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             try {
                 writeReport(thread, throwable)
-            } catch (e: Exception) {
-                e.printStackTrace()
+            } catch (t: Throwable) {
+                t.printStackTrace()
             }
             previousHandler?.uncaughtException(thread, throwable)
         }
@@ -64,6 +68,47 @@ object CrashHandler {
             bytes
         }
         file.writeBytes(trimmed)
+        writeDownloadCopy(trace)
+    }
+
+    /**
+     * Also saves the report where Sam can reach it with any file manager:
+     * the Download folder. Direct file access works when all-files access
+     * is granted; otherwise the MediaStore Downloads collection is used,
+     * which needs no storage permission for the app's own file.
+     */
+    private fun writeDownloadCopy(text: String) {
+        try {
+            val downloads =
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            val file = File(downloads, DOWNLOAD_FILE_NAME)
+            file.parentFile?.mkdirs()
+            file.writeText(text)
+            if (file.exists() && file.length() > 0) {
+                return
+            }
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
+        try {
+            writeDownloadCopyViaMediaStore(text)
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
+    }
+
+    private fun writeDownloadCopyViaMediaStore(text: String) {
+        val values = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, DOWNLOAD_FILE_NAME)
+            put(MediaStore.MediaColumns.MIME_TYPE, "text/plain")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+        }
+        val uri = application.contentResolver.insert(
+            MediaStore.Downloads.EXTERNAL_CONTENT_URI, values
+        ) ?: return
+        application.contentResolver.openOutputStream(uri)?.use { stream ->
+            stream.write(text.toByteArray())
+        }
     }
 
     private fun readReport(): String? {
