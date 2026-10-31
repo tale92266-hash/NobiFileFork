@@ -2,12 +2,16 @@
  * Copyright (c) 2026 NobiFile contributors
  *
  * Opening files and folders in Sam's companion apps: Nobi Terminal
- * (com.nobiterminal) and Nobi Code (com.nobicode.editor). Both actions are
- * best-effort and are only shown when the companion app is installed. No
- * folder-opening contract with either app is assumed: the terminal gets the
- * folder path as an intent extra it may ignore, and the editor gets the file
- * as a content URI. Nothing is claimed to work until Sam tests it on his
- * phone.
+ * (com.nobiterminal) and Nobi Code (com.nobicode.editor).
+ *
+ * Terminal folders open through Nobi Terminal's RUN_COMMAND service
+ * (action com.nobiterminal.RUN_COMMAND, workdir + session-action extras),
+ * which needs the dangerous com.nobiterminal.permission.RUN_COMMAND
+ * permission (declared in the manifest, granted at runtime) AND
+ * allow-external-apps=true in the terminal's ~/.termux/termux.properties.
+ * The editor gets the file as a content URI. Both actions are only shown
+ * when the companion app is installed. Nothing is claimed to work until
+ * Sam tests it on his phone.
  */
 
 package me.zhanghai.android.files.file
@@ -16,13 +20,27 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.nobifile.manager.R
 import java8.nio.file.Path
+import me.zhanghai.android.files.provider.linux.isLinuxPath
+import me.zhanghai.android.files.util.showToast
 
 object NobiIntegration {
 
     const val NOBI_TERMINAL_PACKAGE = "com.nobiterminal"
     const val NOBI_CODE_PACKAGE = "com.nobicode.editor"
+
+    const val RUN_COMMAND_PERMISSION = "com.nobiterminal.permission.RUN_COMMAND"
+    private const val RUN_COMMAND_ACTION = "com.nobiterminal.RUN_COMMAND"
+    private const val RUN_COMMAND_SERVICE_CLASS =
+        "com.nobiterminal.app.RunCommandService"
+    private const val EXTRA_RUN_COMMAND_WORKDIR = "com.nobiterminal.RUN_COMMAND_WORKDIR"
+    private const val EXTRA_RUN_COMMAND_SESSION_ACTION =
+        "com.nobiterminal.RUN_COMMAND_SESSION_ACTION"
+
+    /** Session action 0: switch to a new session and open the activity. */
+    private const val SESSION_ACTION_NEW_AND_OPEN = "0"
 
     fun isInstalled(packageManager: PackageManager, packageName: String): Boolean =
         try {
@@ -38,29 +56,49 @@ object NobiIntegration {
         packageName: String
     ): Intent? = packageManager.getLaunchIntentForPackage(packageName)
 
+    fun hasRunCommandPermission(context: Context): Boolean =
+        ContextCompat.checkSelfPermission(context, RUN_COMMAND_PERMISSION) ==
+            PackageManager.PERMISSION_GRANTED
+
+    /**
+     * Sends a RUN_COMMAND intent opening an interactive shell in [directory].
+     * The caller must hold [RUN_COMMAND_PERMISSION]. Returns false when the
+     * terminal refuses the intent.
+     */
+    fun sendRunCommandIntent(context: Context, directory: Path): Boolean {
+        val intent = Intent(RUN_COMMAND_ACTION).apply {
+            setClassName(NOBI_TERMINAL_PACKAGE, RUN_COMMAND_SERVICE_CLASS)
+            putExtra(EXTRA_RUN_COMMAND_WORKDIR, directory.toString())
+            putExtra(EXTRA_RUN_COMMAND_SESSION_ACTION, SESSION_ACTION_NEW_AND_OPEN)
+        }
+        return try {
+            context.startService(intent)
+            true
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            false
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     fun openInNobiTerminal(context: Context, file: FileItem) {
         val directory: Path = if (file.attributes.isDirectory) {
             file.path
         } else {
             file.path.parent ?: return
         }
-        val intent = context.packageManager.getLaunchIntentForPackage(NOBI_TERMINAL_PACKAGE)
-            ?: run {
-                Toast.makeText(
-                    context, R.string.nobi_terminal_not_installed, Toast.LENGTH_SHORT
-                ).show()
-                return
-            }
-        intent.putExtra("path", directory.toString())
-        intent.putExtra("cwd", directory.toString())
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        try {
-            context.startActivity(intent)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            Toast.makeText(
-                context, R.string.nobi_terminal_not_installed, Toast.LENGTH_SHORT
-            ).show()
+        if (!directory.isLinuxPath) {
+            context.showToast(R.string.nobi_terminal_open_failed)
+            return
+        }
+        if (!isInstalled(context.packageManager, NOBI_TERMINAL_PACKAGE)) {
+            context.showToast(R.string.nobi_terminal_not_installed)
+            return
+        }
+        if (!sendRunCommandIntent(context, directory)) {
+            context.showToast(R.string.nobi_terminal_open_failed)
         }
     }
 

@@ -34,6 +34,7 @@ import me.zhanghai.android.files.file.NobiIntegration
 import me.zhanghai.android.files.file.isApk
 import me.zhanghai.android.files.provider.archive.isArchivePath
 import me.zhanghai.android.files.provider.common.isEncrypted
+import me.zhanghai.android.files.provider.linux.isLinuxPath
 import me.zhanghai.android.files.settings.Settings
 import me.zhanghai.android.files.ui.AnimatedListAdapter
 import me.zhanghai.android.files.ui.CheckableForegroundLinearLayout
@@ -352,13 +353,13 @@ class FileListAdapter(
         menu.findItem(R.id.action_archive).isVisible = !isArchivePath
         menu.findItem(R.id.action_add_bookmark).isVisible = isDirectory
         menu.findItem(R.id.action_open_in_nobi_terminal).isVisible =
-            nobiTerminalInstalled == true
+            nobiTerminalInstalled == true && file.path.isLinuxPath
         menu.findItem(R.id.action_open_in_nobi_code).isVisible =
             !isDirectory && nobiCodeInstalled == true
         holder.popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.action_open_in_nobi_terminal -> {
-                    NobiIntegration.openInNobiTerminal(holder.itemView.context, file)
+                    listener.openInNobiTerminal(file)
                     true
                 }
                 R.id.action_open_in_nobi_code -> {
@@ -502,6 +503,7 @@ class FileListAdapter(
         fun selectFiles(files: FileItemSet, selected: Boolean)
         fun openFile(file: FileItem)
         fun openFileWith(file: FileItem)
+        fun openInNobiTerminal(file: FileItem)
         fun cutFile(file: FileItem)
         fun copyFile(file: FileItem)
         fun confirmDeleteFile(file: FileItem)

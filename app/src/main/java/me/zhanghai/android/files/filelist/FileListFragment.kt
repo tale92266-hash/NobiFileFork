@@ -66,6 +66,7 @@ import com.nobifile.manager.databinding.FileListFragmentIncludeBinding
 import com.nobifile.manager.databinding.FileListFragmentSpeedDialIncludeBinding
 import me.zhanghai.android.files.file.FileItem
 import me.zhanghai.android.files.file.MimeType
+import me.zhanghai.android.files.file.NobiIntegration
 import me.zhanghai.android.files.file.asMimeTypeOrNull
 import me.zhanghai.android.files.file.extension
 import me.zhanghai.android.files.file.fileProviderUri
@@ -161,6 +162,10 @@ class FileListFragment : Fragment(), BreadcrumbLayout.Listener, FileListAdapter.
         RequestPermissionInSettingsContract(android.Manifest.permission.POST_NOTIFICATIONS),
         this::onRequestNotificationPermissionInSettingsResult
     )
+    private val requestRunCommandPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission(), this::onRequestRunCommandPermissionResult
+    )
+    private var pendingRunCommandFile: FileItem? = null
 
     private val args by args<Args>()
     private val argsPath by lazy { args.intent.extraPath }
@@ -1255,6 +1260,27 @@ class FileListFragment : Fragment(), BreadcrumbLayout.Listener, FileListAdapter.
 
     override fun openFileWith(file: FileItem) {
         openFileWithIntent(file, true)
+    }
+
+    override fun openInNobiTerminal(file: FileItem) {
+        if (NobiIntegration.hasRunCommandPermission(requireContext())) {
+            NobiIntegration.openInNobiTerminal(requireContext(), file)
+            return
+        }
+        pendingRunCommandFile = file
+        requestRunCommandPermissionLauncher.launch(NobiIntegration.RUN_COMMAND_PERMISSION)
+    }
+
+    private fun onRequestRunCommandPermissionResult(isGranted: Boolean) {
+        val file = pendingRunCommandFile
+        pendingRunCommandFile = null
+        if (!isGranted) {
+            showToast(R.string.nobi_terminal_permission_needed)
+            return
+        }
+        if (file != null) {
+            NobiIntegration.openInNobiTerminal(requireContext(), file)
+        }
     }
 
     private fun openFileWithIntent(file: FileItem, withChooser: Boolean) {
