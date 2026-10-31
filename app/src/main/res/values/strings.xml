@@ -818,7 +818,7 @@
     <string name="nobi_terminal_permission_needed">Allow the Nobi Terminal permission to open folders in the terminal</string>
     <string name="nobi_terminal_open_failed">Could not open the folder in Nobi Terminal</string>
     <string name="crash_report_title">Crash report</string>
-    <string name="crash_report_intro">NobiFile crashed the last time it was opened. Please share this report so the crash can be fixed:</string>
+    <string name="crash_report_intro">NobiFile crashed the last time it was opened. A copy is also saved in the Download folder as NobiFile-crash-report.txt. Please share this report so the crash can be fixed:</string>
     <string name="crash_report_share">Share</string>
     <string name="crash_report_copy">Copy</string>
     <string name="crash_report_dismiss">Dismiss</string>
