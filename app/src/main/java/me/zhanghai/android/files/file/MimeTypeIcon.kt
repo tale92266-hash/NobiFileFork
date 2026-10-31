@@ -15,7 +15,7 @@ enum class MimeTypeIcon(val resourceId: Int) {
     CERTIFICATE(R.drawable.file_certificate_icon),
     CODE(R.drawable.file_code_icon),
     CONTACT(R.drawable.file_contact_icon),
-    DIRECTORY(R.drawable.file_directory_icon),
+    DIRECTORY(R.drawable.ic_folder),
     DOCUMENT(R.drawable.file_document_icon),
     EBOOK(R.drawable.file_ebook_icon),
     EMAIL(R.drawable.file_email_icon),

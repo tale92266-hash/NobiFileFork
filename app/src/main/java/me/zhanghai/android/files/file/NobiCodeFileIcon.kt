@@ -18,7 +18,7 @@ object NobiCodeFileIcon {
     fun iconRes(fileName: String, isDirectory: Boolean, mimeType: MimeType): Int {
         val lower = fileName.lowercase(Locale.ROOT)
         if (isDirectory) {
-            return folderIconMap[lower] ?: MimeTypeIcon.DIRECTORY.resourceId
+            return folderIconMap[lower] ?: R.drawable.ic_folder
         }
         exactNameMap[lower]?.let { return it }
         val extension = lower.substringAfterLast('.', "")
