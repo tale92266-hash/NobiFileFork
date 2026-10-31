@@ -40,6 +40,16 @@
     </style>
     <style name="Theme.MaterialFiles" parent="Base.Theme.MaterialFiles" />
 
+    <!-- NobiFile splash theme: only used by SplashActivity, which never
+         applies the custom-theme helper, so this theme is never retained. -->
+    <style name="Theme.NobiFile.Splash" parent="Theme.MaterialFiles">
+        <item name="android:windowBackground">@drawable/nobi_splash_background</item>
+        <item name="android:statusBarColor">#2563EB</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
     <style name="Platform.V23.Theme.MaterialFiles.Translucent" parent="Theme.MaterialFiles">
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>

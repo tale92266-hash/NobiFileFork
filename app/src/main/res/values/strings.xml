@@ -8,6 +8,7 @@
 <resources>
 
     <string name="app_name">NobiFile</string>
+    <string name="nobi_drawer_subtitle">File Manager</string>
 
     <string name="close">Close</string>
     <string name="copy">Copy</string>
@@ -813,6 +814,9 @@
     <string name="open_in_nobi_code">Open in Nobi Code</string>
     <string name="nobi_terminal_not_installed">Nobi Terminal is not installed</string>
     <string name="nobi_code_not_installed">Nobi Code is not installed</string>
+    <string name="nobi_tree_permission_not_saved">Folder permission could not be saved. It will ask for access again.</string>
+    <string name="nobi_terminal_permission_needed">Allow the Nobi Terminal permission to open folders in the terminal</string>
+    <string name="nobi_terminal_open_failed">Could not open the folder in Nobi Terminal</string>
     <!-- NobiFile sidebar app entries -->
     <string name="navigation_nobi_code">Nobi Code</string>
     <string name="navigation_nobi_terminal">Nobi Terminal</string>
