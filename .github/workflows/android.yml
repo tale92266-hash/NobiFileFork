@@ -1,0 +1,35 @@
+name: Android CI
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+    - name: Set up JDK 21
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '21'
+    - name: Restore NobiFile signing key (if secrets are set)
+      run: |
+        if [ -n "$NOBIFILE_KEYSTORE_B64" ]; then
+          echo "$NOBIFILE_KEYSTORE_B64" | base64 -d > nobifile.keystore
+          echo "NOBIFILE_KEYSTORE_FILE=$PWD/nobifile.keystore" >> $GITHUB_ENV
+        fi
+      env:
+        NOBIFILE_KEYSTORE_B64: ${{ secrets.NOBIFILE_KEYSTORE_B64 }}
+    - name: Build with Gradle
+      run: ./gradlew assembleDebug lintVitalRelease
+      env:
+        NOBIFILE_STORE_PASSWORD: ${{ secrets.NOBIFILE_STORE_PASSWORD }}
+        NOBIFILE_KEY_ALIAS: ${{ secrets.NOBIFILE_KEY_ALIAS }}
+        NOBIFILE_KEY_PASSWORD: ${{ secrets.NOBIFILE_KEY_PASSWORD }}
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NobiFile-debug-apk
+        path: app/build/outputs/apk/debug/app-debug.apk
+        retention-days: 10
