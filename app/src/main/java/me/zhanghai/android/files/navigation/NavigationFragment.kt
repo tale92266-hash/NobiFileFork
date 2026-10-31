@@ -14,6 +14,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -50,6 +53,18 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        // The header sits above the list, so it owns the status-bar inset:
+        // its top padding is the base padding plus the status-bar height,
+        // and the insets pass through unconsumed for the list below.
+        val headerTopPadding = binding.headerLayout.paddingTop
+        ViewCompat.setOnApplyWindowInsetsListener(binding.headerLayout) { view, insets ->
+            view.updatePadding(
+                top = headerTopPadding +
+                    insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+            )
+            insets
+        }
 
         binding.recyclerView.setHasFixedSize(true)
         // TODO: Needed?
