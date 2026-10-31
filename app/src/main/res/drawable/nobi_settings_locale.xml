@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- NobiFile icon - original filled design, not a Material Files icon -->
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <path
+        android:fillColor="#3B82F6"
+        android:pathData="M2 12a10 10 0 1 1 20 0a10 10 0 1 1 -20 0z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M11 2h2v20h-2z" android:fillAlpha="0.85"/>
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M2 11h20v2H2z" android:fillAlpha="0.85"/>
+</vector>

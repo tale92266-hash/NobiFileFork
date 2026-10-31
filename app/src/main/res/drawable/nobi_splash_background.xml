@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ Copyright (c) 2026 NobiFile contributors
+  -->
+
+<!-- Splash screen: gradient background with the NobiFile mark centered. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@drawable/launcher_icon_background" />
+    <item>
+        <bitmap
+            android:gravity="center"
+            android:src="@drawable/nobi_splash_logo" />
+    </item>
+</layer-list>
