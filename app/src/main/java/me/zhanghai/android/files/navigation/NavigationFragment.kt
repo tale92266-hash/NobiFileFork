@@ -8,18 +8,22 @@ package me.zhanghai.android.files.navigation
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.provider.DocumentsContract
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.ActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import java8.nio.file.Path
+import com.nobifile.manager.R
 import com.nobifile.manager.databinding.NavigationFragmentBinding
 import me.zhanghai.android.files.file.asDocumentTreeUriOrNull
 import me.zhanghai.android.files.file.takePersistablePermission
 import me.zhanghai.android.files.provider.document.createDocumentTreeRootPath
+import me.zhanghai.android.files.util.showToast
 import me.zhanghai.android.files.util.startActivitySafe
 
 class NavigationFragment : Fragment(), NavigationItem.Listener {
@@ -32,7 +36,7 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
     private var pendingNobiTreeTarget: NobiTreeTarget? = null
 
     private val openNobiTreeLauncher = registerForActivityResult(
-        ActivityResultContracts.OpenDocumentTree(), this::onOpenNobiTreeResult
+        ActivityResultContracts.StartActivityForResult(), this::onOpenNobiTreeResult
     )
 
     override fun onCreateView(
@@ -85,20 +89,36 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
 
     override fun openNobiTree(target: NobiTreeTarget) {
         pendingNobiTreeTarget = target
-        openNobiTreeLauncher.launch(target.initialDocumentUri)
+        // The stock OpenDocumentTree contract sends no grant flags, so the
+        // system may not offer a persistable grant on strict devices
+        // (Android 15/16) and every tap re-asks. Send the documented
+        // ACTION_OPEN_DOCUMENT_TREE request with persistable + prefix flags.
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE).apply {
+            putExtra(DocumentsContract.EXTRA_INITIAL_URI, target.initialDocumentUri)
+            addFlags(
+                Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    or Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    or Intent.FLAG_GRANT_PREFIX_URI_PERMISSION
+            )
+        }
+        openNobiTreeLauncher.launch(intent)
     }
 
-    private fun onOpenNobiTreeResult(result: Uri?) {
+    private fun onOpenNobiTreeResult(result: ActivityResult) {
         val target = pendingNobiTreeTarget
         pendingNobiTreeTarget = null
-        val treeUri = result?.asDocumentTreeUriOrNull()
-        if (target == null || treeUri == null) {
+        if (target == null) {
             return
         }
-        // Only the system grant is persisted (persistedUriPermissions). The
-        // folder must NOT become a separate storage row: the sidebar entry
-        // itself opens it, and a duplicate row is what V5 wrongly created.
-        treeUri.takePersistablePermission()
+        val intent = result.data ?: return
+        val treeUri = intent.data?.asDocumentTreeUriOrNull() ?: return
+        // Take the grant (read+write, falling back to read-only). If the
+        // system did not offer a persistable grant, this returns false.
+        val persisted = treeUri.takePersistablePermission()
+        if (!persisted) {
+            showToast(R.string.nobi_tree_permission_not_saved)
+        }
         listener.navigateTo(treeUri.value.createDocumentTreeRootPath())
         listener.closeNavigationDrawer()
     }
