@@ -66,15 +66,23 @@ object CustomThemeHelper {
     private fun getCustomThemeRes(@StyleRes baseThemeRes: Int, context: Context): Int {
         val resources = context.resources
         val baseThemeName = resources.getResourceName(baseThemeRes)
+        val defaultThemeName = resources.getResourceEntryName(R.style.Theme_MaterialFiles)
+        // Activities with a non-standard manifest theme (e.g. the splash
+        // theme) cannot be derived by name replacement: fall back to
+        // deriving from the default theme instead of resolving id 0.
+        val effectiveBaseThemeName = if (baseThemeName.contains(defaultThemeName)) {
+            baseThemeName
+        } else {
+            resources.getResourceName(R.style.Theme_MaterialFiles)
+        }
         val customThemeName = if (Settings.MATERIAL_DESIGN_3.valueCompat) {
-            val defaultThemeName = resources.getResourceEntryName(R.style.Theme_MaterialFiles)
             val material3ThemeName =
                 resources.getResourceEntryName(R.style.Theme_MaterialFiles_Material3)
-            baseThemeName.replace(defaultThemeName, material3ThemeName)
+            effectiveBaseThemeName.replace(defaultThemeName, material3ThemeName)
         } else {
             val themeColorName =
                 resources.getResourceEntryName(Settings.THEME_COLOR.valueCompat.resourceId)
-            "$baseThemeName.$themeColorName"
+            "$effectiveBaseThemeName.$themeColorName"
         } + if (Settings.BLACK_NIGHT_MODE.valueCompat) ".Black" else ""
         return resources.getIdentifier(customThemeName, null, null)
     }
