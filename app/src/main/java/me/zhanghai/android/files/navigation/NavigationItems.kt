@@ -17,8 +17,8 @@ import java8.nio.file.Path
 import java8.nio.file.Paths
 import com.nobifile.manager.R
 import me.zhanghai.android.files.about.AboutActivity
-import me.zhanghai.android.files.app.application
-import me.zhanghai.android.files.file.NobiIntegration
+import me.zhanghai.android.files.file.asDocumentTreeUri
+import me.zhanghai.android.files.provider.document.createDocumentTreeRootPath
 import me.zhanghai.android.files.compat.getDescriptionCompat
 import me.zhanghai.android.files.compat.isPrimaryCompat
 import me.zhanghai.android.files.compat.pathCompat
@@ -49,7 +49,7 @@ val navigationItems: List<NavigationItem?>
                 // to avoid confusion.
                 addAll(storageVolumeItems)
             }
-            addAll(appItems)
+            addAll(nobiTreeItems)
             add(AddStorageItem())
             val standardDirectoryItems = standardDirectoryItems
             if (standardDirectoryItems.isNotEmpty()) {
@@ -195,33 +195,30 @@ private fun getStorageSubtitle(linuxPath: String, context: Context): String? {
     )
 }
 
-private val appItems: List<NavigationItem>
-    get() {
-        val packageManager = application.packageManager
-        return listOfNotNull(
-            NobiIntegration.launchIntent(packageManager, NobiIntegration.NOBI_CODE_PACKAGE)
-                ?.let {
-                    AppItem(R.drawable.nobi_nav_nobicode, R.string.navigation_nobi_code, it)
-                },
-            NobiIntegration.launchIntent(packageManager, NobiIntegration.NOBI_TERMINAL_PACKAGE)
-                ?.let {
-                    AppItem(
-                        R.drawable.nobi_nav_nobiterminal, R.string.navigation_nobi_terminal, it
-                    )
-                }
-        )
-    }
+private val nobiTreeItems: List<NavigationItem>
+    get() = NobiTreeTarget.entries.map { NobiTreeItem(it) }
 
-private class AppItem(
-    @DrawableRes iconRes: Int,
-    @StringRes titleRes: Int,
-    private val intent: Intent
-) : MenuItem(iconRes, titleRes) {
+private class NobiTreeItem(private val target: NobiTreeTarget) : NavigationItem() {
     override val id: Long
-        get() = titleRes.toLong()
+        get() = target.titleRes.toLong()
+
+    @DrawableRes
+    override val iconRes: Int
+        get() = target.iconRes
+
+    override val useIconTint: Boolean
+        get() = false
+
+    override fun getTitle(context: Context): String = context.getString(target.titleRes)
 
     override fun onClick(listener: Listener) {
-        listener.launchIntent(intent)
+        if (target.findCoveringGrant() != null) {
+            listener.navigateTo(
+                target.treeUri.asDocumentTreeUri().value.createDocumentTreeRootPath()
+            )
+        } else {
+            listener.openNobiTree(target)
+        }
         listener.closeNavigationDrawer()
     }
 }

@@ -6,16 +6,25 @@
 package me.zhanghai.android.files.navigation
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import java8.nio.file.Path
 import com.nobifile.manager.databinding.NavigationFragmentBinding
+import me.zhanghai.android.files.file.asDocumentTreeUriOrNull
+import me.zhanghai.android.files.file.takePersistablePermission
+import me.zhanghai.android.files.provider.document.createDocumentTreeRootPath
+import me.zhanghai.android.files.settings.Settings
+import me.zhanghai.android.files.storage.DocumentTree
+import me.zhanghai.android.files.storage.Storages
 import me.zhanghai.android.files.util.startActivitySafe
+import me.zhanghai.android.files.util.valueCompat
 
 class NavigationFragment : Fragment(), NavigationItem.Listener {
     private lateinit var binding: NavigationFragmentBinding
@@ -23,6 +32,12 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
     private lateinit var adapter: NavigationListAdapter
 
     lateinit var listener: Listener
+
+    private var pendingNobiTreeTarget: NobiTreeTarget? = null
+
+    private val openNobiTreeLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocumentTree(), this::onOpenNobiTreeResult
+    )
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -70,6 +85,29 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
 
     override fun launchIntent(intent: Intent) {
         startActivitySafe(intent)
+    }
+
+    override fun openNobiTree(target: NobiTreeTarget) {
+        pendingNobiTreeTarget = target
+        openNobiTreeLauncher.launch(target.initialDocumentUri)
+    }
+
+    private fun onOpenNobiTreeResult(result: Uri?) {
+        val target = pendingNobiTreeTarget
+        pendingNobiTreeTarget = null
+        val treeUri = result?.asDocumentTreeUriOrNull()
+        if (target == null || treeUri == null) {
+            return
+        }
+        treeUri.takePersistablePermission()
+        val storages = Settings.STORAGES.valueCompat
+        if (storages.none { it is DocumentTree && it.uri.value == treeUri.value }) {
+            Storages.addOrReplace(
+                DocumentTree(null, getString(target.titleRes), treeUri)
+            )
+        }
+        listener.navigateTo(treeUri.value.createDocumentTreeRootPath())
+        listener.closeNavigationDrawer()
     }
 
     override fun closeNavigationDrawer() {
