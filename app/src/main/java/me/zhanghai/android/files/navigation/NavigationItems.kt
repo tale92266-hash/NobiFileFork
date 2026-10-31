@@ -202,7 +202,7 @@ private class NobiTreeItem(private val target: NobiTreeTarget) : NavigationItem(
     override val id: Long
         get() = target.titleRes.toLong()
 
-    @DrawableRes
+    @get:DrawableRes
     override val iconRes: Int
         get() = target.iconRes
 
