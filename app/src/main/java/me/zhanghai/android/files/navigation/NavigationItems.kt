@@ -17,6 +17,8 @@ import java8.nio.file.Path
 import java8.nio.file.Paths
 import com.nobifile.manager.R
 import me.zhanghai.android.files.about.AboutActivity
+import me.zhanghai.android.files.app.application
+import me.zhanghai.android.files.file.NobiIntegration
 import me.zhanghai.android.files.compat.getDescriptionCompat
 import me.zhanghai.android.files.compat.isPrimaryCompat
 import me.zhanghai.android.files.compat.pathCompat
@@ -47,6 +49,7 @@ val navigationItems: List<NavigationItem?>
                 // to avoid confusion.
                 addAll(storageVolumeItems)
             }
+            addAll(appItems)
             add(AddStorageItem())
             val standardDirectoryItems = standardDirectoryItems
             if (standardDirectoryItems.isNotEmpty()) {
@@ -96,6 +99,8 @@ private class PathStorageItem(
         @DrawableRes
         get() = storage.iconRes
 
+    override val useIconTint: Boolean = false
+
     override fun getTitle(context: Context): String = storage.getName(context)
 
     override fun getSubtitle(context: Context): String? =
@@ -122,6 +127,8 @@ private class IntentStorageItem(
     override val iconRes: Int
         @DrawableRes
         get() = storage.iconRes
+
+    override val useIconTint: Boolean = false
 
     override fun getTitle(context: Context): String = storage.getName(context)
 
@@ -150,7 +157,9 @@ private class StorageVolumeItem(
 
     override val iconRes: Int
         @DrawableRes
-        get() = R.drawable.sd_card_icon_white_24dp
+        get() = R.drawable.nobi_nav_sd_card
+
+    override val useIconTint: Boolean = false
 
     override fun getTitle(context: Context): String = storageVolume.getDescriptionCompat(context)
 
@@ -186,11 +195,44 @@ private fun getStorageSubtitle(linuxPath: String, context: Context): String? {
     )
 }
 
+private val appItems: List<NavigationItem>
+    get() {
+        val packageManager = application.packageManager
+        return listOfNotNull(
+            NobiIntegration.launchIntent(packageManager, NobiIntegration.NOBI_CODE_PACKAGE)
+                ?.let {
+                    AppItem(R.drawable.nobi_nav_nobicode, R.string.navigation_nobi_code, it)
+                },
+            NobiIntegration.launchIntent(packageManager, NobiIntegration.NOBI_TERMINAL_PACKAGE)
+                ?.let {
+                    AppItem(
+                        R.drawable.nobi_nav_nobiterminal, R.string.navigation_nobi_terminal, it
+                    )
+                }
+        )
+    }
+
+private class AppItem(
+    @DrawableRes iconRes: Int,
+    @StringRes titleRes: Int,
+    private val intent: Intent
+) : MenuItem(iconRes, titleRes) {
+    override val id: Long
+        get() = titleRes.toLong()
+
+    override fun onClick(listener: Listener) {
+        listener.launchIntent(intent)
+        listener.closeNavigationDrawer()
+    }
+}
+
 private class AddStorageItem : NavigationItem() {
     override val id: Long = R.string.navigation_add_storage.toLong()
 
     @DrawableRes
-    override val iconRes: Int = R.drawable.add_icon_white_24dp
+    override val iconRes: Int = R.drawable.nobi_nav_add
+
+    override val useIconTint: Boolean = false
 
     override fun getTitle(context: Context): String =
         context.getString(R.string.navigation_add_storage)
@@ -221,6 +263,8 @@ private class StandardDirectoryItem(
         @DrawableRes
         get() = standardDirectory.iconRes
 
+    override val useIconTint: Boolean = false
+
     override fun getTitle(context: Context): String = standardDirectory.getTitle(context)
 
     override fun onLongClick(listener: Listener): Boolean {
@@ -245,8 +289,8 @@ private val defaultStandardDirectories: List<StandardDirectory>
     get() =
         DEFAULT_STANDARD_DIRECTORIES.mapNotNull {
             when (it.iconRes) {
-                R.drawable.qq_icon_white_24dp, R.drawable.tim_icon_white_24dp,
-                R.drawable.wechat_icon_white_24dp -> {
+                R.drawable.nobi_nav_qq, R.drawable.nobi_nav_tim,
+                R.drawable.nobi_nav_wechat -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         // Direct access to Android/data is blocked since Android 11.
                         null
@@ -267,57 +311,57 @@ private val defaultStandardDirectories: List<StandardDirectory>
 // @see android.os.Environment#STANDARD_DIRECTORIES
 private val DEFAULT_STANDARD_DIRECTORIES = listOf(
     StandardDirectory(
-        R.drawable.alarm_icon_white_24dp, R.string.navigation_standard_directory_alarms,
+        R.drawable.nobi_nav_alarm, R.string.navigation_standard_directory_alarms,
         Environment.DIRECTORY_ALARMS, false
     ),
     StandardDirectory(
-        R.drawable.camera_icon_white_24dp, R.string.navigation_standard_directory_dcim,
+        R.drawable.nobi_nav_camera, R.string.navigation_standard_directory_dcim,
         Environment.DIRECTORY_DCIM, true
     ),
     StandardDirectory(
-        R.drawable.document_icon_white_24dp, R.string.navigation_standard_directory_documents,
+        R.drawable.nobi_nav_document, R.string.navigation_standard_directory_documents,
         Environment.DIRECTORY_DOCUMENTS, false),
     StandardDirectory(
-        R.drawable.download_icon_white_24dp, R.string.navigation_standard_directory_downloads,
+        R.drawable.nobi_nav_download, R.string.navigation_standard_directory_downloads,
         Environment.DIRECTORY_DOWNLOADS, true
     ),
     StandardDirectory(
-        R.drawable.video_icon_white_24dp, R.string.navigation_standard_directory_movies,
+        R.drawable.nobi_nav_video, R.string.navigation_standard_directory_movies,
         Environment.DIRECTORY_MOVIES, true
     ),
     StandardDirectory(
-        R.drawable.audio_icon_white_24dp, R.string.navigation_standard_directory_music,
+        R.drawable.nobi_nav_audio, R.string.navigation_standard_directory_music,
         Environment.DIRECTORY_MUSIC, true
     ),
     StandardDirectory(
-        R.drawable.notification_icon_white_24dp,
+        R.drawable.nobi_nav_notification,
         R.string.navigation_standard_directory_notifications, Environment.DIRECTORY_NOTIFICATIONS,
         false
     ),
     StandardDirectory(
-        R.drawable.image_icon_white_24dp, R.string.navigation_standard_directory_pictures,
+        R.drawable.nobi_nav_image, R.string.navigation_standard_directory_pictures,
         Environment.DIRECTORY_PICTURES, true
     ),
     StandardDirectory(
-        R.drawable.podcast_icon_white_24dp, R.string.navigation_standard_directory_podcasts,
+        R.drawable.nobi_nav_podcast, R.string.navigation_standard_directory_podcasts,
         Environment.DIRECTORY_PODCASTS, false
     ),
     StandardDirectory(
-        R.drawable.ringtone_icon_white_24dp, R.string.navigation_standard_directory_ringtones,
+        R.drawable.nobi_nav_ringtone, R.string.navigation_standard_directory_ringtones,
         Environment.DIRECTORY_RINGTONES, false
     ),
     StandardDirectory(
-        R.drawable.qq_icon_white_24dp, R.string.navigation_standard_directory_qq,
+        R.drawable.nobi_nav_qq, R.string.navigation_standard_directory_qq,
         listOf("Android/data/com.tencent.mobileqq/Tencent/QQfile_recv", "Tencent/QQfile_recv")
             .joinToString(relativePathSeparator), true
     ),
     StandardDirectory(
-        R.drawable.tim_icon_white_24dp, R.string.navigation_standard_directory_tim,
+        R.drawable.nobi_nav_tim, R.string.navigation_standard_directory_tim,
         listOf("Android/data/com.tencent.tim/Tencent/TIMfile_recv", "Tencent/TIMfile_recv")
             .joinToString(relativePathSeparator), true
     ),
     StandardDirectory(
-        R.drawable.wechat_icon_white_24dp, R.string.navigation_standard_directory_wechat,
+        R.drawable.nobi_nav_wechat, R.string.navigation_standard_directory_wechat,
         listOf("Android/data/com.tencent.mm/MicroMsg/Download", "Tencent/MicroMsg/Download")
             .joinToString(relativePathSeparator), true
     )
@@ -340,7 +384,9 @@ private class BookmarkDirectoryItem(
         get() = bookmarkDirectory.id
 
     @DrawableRes
-    override val iconRes: Int = R.drawable.directory_icon_white_24dp
+    override val iconRes: Int = R.drawable.nobi_nav_directory
+
+    override val useIconTint: Boolean = false
 
     override fun getTitle(context: Context): String = bookmarkDirectory.name
 
@@ -357,15 +403,15 @@ private val menuItems: List<NavigationItem>
     @Size(3)
     get() = listOf(
         IntentMenuItem(
-            R.drawable.shared_directory_icon_white_24dp, R.string.navigation_ftp_server,
+            R.drawable.nobi_nav_shared_directory, R.string.navigation_ftp_server,
             FtpServerActivity::class.createIntent()
         ),
         IntentMenuItem(
-            R.drawable.settings_icon_white_24dp, R.string.navigation_settings,
+            R.drawable.nobi_nav_settings, R.string.navigation_settings,
             SettingsActivity::class.createIntent()
         ),
         IntentMenuItem(
-            R.drawable.about_icon_white_24dp, R.string.navigation_about,
+            R.drawable.nobi_nav_about, R.string.navigation_about,
             AboutActivity::class.createIntent()
         )
     )
@@ -374,6 +420,7 @@ private abstract class MenuItem(
     @DrawableRes override val iconRes: Int,
     @StringRes val titleRes: Int
 ) : NavigationItem() {
+    override val useIconTint: Boolean = false
     override fun getTitle(context: Context): String = context.getString(titleRes)
 }
 

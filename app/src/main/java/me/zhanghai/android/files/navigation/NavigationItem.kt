@@ -20,6 +20,9 @@ abstract class NavigationItem {
     @get:DrawableRes
     protected abstract val iconRes: Int?
 
+    open val useIconTint: Boolean
+        get() = true
+
     abstract fun getTitle(context: Context): String
 
     open fun getSubtitle(context: Context): String? = null

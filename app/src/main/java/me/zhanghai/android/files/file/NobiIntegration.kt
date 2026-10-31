@@ -33,6 +33,11 @@ object NobiIntegration {
             false
         }
 
+    fun launchIntent(
+        packageManager: PackageManager,
+        packageName: String
+    ): Intent? = packageManager.getLaunchIntentForPackage(packageName)
+
     fun openInNobiTerminal(context: Context, file: FileItem) {
         val directory: Path = if (file.attributes.isDirectory) {
             file.path

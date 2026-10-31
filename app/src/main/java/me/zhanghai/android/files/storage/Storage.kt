@@ -18,7 +18,7 @@ abstract class Storage : Parcelable {
 
     open val iconRes: Int
         @DrawableRes
-        get() = R.drawable.directory_icon_white_24dp
+        get() = R.drawable.nobi_nav_directory
 
     abstract val customName: String?
 

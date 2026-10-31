@@ -46,7 +46,7 @@ data class DocumentTree(
             // We are using MANAGE_EXTERNAL_STORAGE to access all storage volumes when supported.
             if (!Environment::class.supportsExternalStorageManager()
                 && uri.storageVolume.let { it != null && !it.isPrimaryCompat }) {
-                R.drawable.sd_card_icon_white_24dp
+                R.drawable.nobi_nav_sd_card
             } else {
                 super.iconRes
             }

@@ -53,7 +53,7 @@ data class FileSystemRoot(
 
     override val iconRes: Int
         @DrawableRes
-        get() = R.drawable.device_icon_white_24dp
+        get() = R.drawable.nobi_nav_device
 
     override fun getDefaultName(context: Context): String =
         context.getString(R.string.storage_file_system_root_title)
@@ -76,7 +76,7 @@ data class PrimaryStorageVolume(
 
     override val iconRes: Int
         @DrawableRes
-        get() = R.drawable.sd_card_icon_white_24dp
+        get() = R.drawable.nobi_nav_sd_card
 
     override fun getDefaultName(context: Context): String =
         storageVolume.getDescriptionCompat(context)
