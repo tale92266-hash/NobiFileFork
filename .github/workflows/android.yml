@@ -26,7 +26,7 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew assembleDebug lintVitalRelease
       env:
-        NOBIFILE_STORE_PASSWORD: ${{ secrets.NOBIFILE_STORE_PASSWORD }}
+        NOBIFILE_STORE_PASSWORD: ${{ secrets.NOBIFILE_KEYSTORE_PASSWORD }}
         NOBIFILE_KEY_ALIAS: ${{ secrets.NOBIFILE_KEY_ALIAS }}
         NOBIFILE_KEY_PASSWORD: ${{ secrets.NOBIFILE_KEY_PASSWORD }}
     - name: Upload artifact
