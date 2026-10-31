@@ -29,7 +29,8 @@ import com.nobifile.manager.databinding.FileItemListBinding
 import me.zhanghai.android.files.file.FileItem
 import me.zhanghai.android.files.file.fileSize
 import me.zhanghai.android.files.file.formatShort
-import me.zhanghai.android.files.file.iconRes
+import me.zhanghai.android.files.file.NobiCodeFileIcon
+import me.zhanghai.android.files.file.NobiIntegration
 import me.zhanghai.android.files.file.isApk
 import me.zhanghai.android.files.provider.archive.isArchivePath
 import me.zhanghai.android.files.provider.common.isEncrypted
@@ -46,6 +47,8 @@ class FileListAdapter(
     private val listener: Listener
 ) : AnimatedListAdapter<FileItem, FileListAdapter.ViewHolder>(CALLBACK), PopupTextProvider {
     private var isSearching = false
+    private var nobiTerminalInstalled: Boolean? = null
+    private var nobiCodeInstalled: Boolean? = null
 
     private lateinit var _viewType: FileViewType
     var viewType: FileViewType
@@ -216,6 +219,13 @@ class FileListAdapter(
         val isEnabled = isFileSelectable(file) || isDirectory
         holder.itemLayout.isEnabled = isEnabled
         holder.menuButton.isEnabled = isEnabled
+        if (nobiTerminalInstalled == null) {
+            val packageManager = holder.itemView.context.packageManager
+            nobiTerminalInstalled =
+                NobiIntegration.isInstalled(packageManager, NobiIntegration.NOBI_TERMINAL_PACKAGE)
+            nobiCodeInstalled =
+                NobiIntegration.isInstalled(packageManager, NobiIntegration.NOBI_CODE_PACKAGE)
+        }
         val menu = holder.popupMenu.menu
         val path = file.path
         val hasPickOptions = pickOptions != null
@@ -253,10 +263,14 @@ class FileListAdapter(
             }
         }
         holder.iconLayout.setOnClickListener { selectFile(file) }
-        val iconRes = file.mimeType.iconRes
+        val iconRes = NobiCodeFileIcon.iconRes(file.name, isDirectory, file.mimeType)
+        val iconChanged = holder.boundIconRes != iconRes
+        holder.boundIconRes = iconRes
         holder.iconImage.apply {
             isVisible = true
-            setImageResource(iconRes)
+            if (iconChanged) {
+                setImageResource(iconRes)
+            }
         }
         holder.directoryThumbnailImage?.isVisible = isDirectory
         holder.thumbnailOutlineView?.isVisible = !isDirectory
@@ -267,7 +281,9 @@ class FileListAdapter(
         holder.thumbnailIconImage?.apply {
             dispose()
             isVisible = !isDirectory
-            setImageResource(iconRes)
+            if (iconChanged) {
+                setImageResource(iconRes)
+            }
             if (shouldLoadThumbnailIcon) {
                 load(path to attributes)
             }
@@ -335,8 +351,20 @@ class FileListAdapter(
         menu.findItem(R.id.action_extract).isVisible = file.isArchiveFile
         menu.findItem(R.id.action_archive).isVisible = !isArchivePath
         menu.findItem(R.id.action_add_bookmark).isVisible = isDirectory
+        menu.findItem(R.id.action_open_in_nobi_terminal).isVisible =
+            nobiTerminalInstalled == true
+        menu.findItem(R.id.action_open_in_nobi_code).isVisible =
+            !isDirectory && nobiCodeInstalled == true
         holder.popupMenu.setOnMenuItemClickListener {
             when (it.itemId) {
+                R.id.action_open_in_nobi_terminal -> {
+                    NobiIntegration.openInNobiTerminal(holder.itemView.context, file)
+                    true
+                }
+                R.id.action_open_in_nobi_code -> {
+                    NobiIntegration.openInNobiCode(holder.itemView.context, file)
+                    true
+                }
                 R.id.action_open_with -> {
                     listener.openFileWith(file)
                     true
@@ -464,6 +492,8 @@ class FileListAdapter(
         )
 
         lateinit var popupMenu: PopupMenu
+
+        var boundIconRes: Int = 0
     }
 
     interface Listener {

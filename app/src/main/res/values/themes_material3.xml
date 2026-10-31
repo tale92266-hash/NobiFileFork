@@ -23,6 +23,25 @@
         <item name="android:windowAllowReturnTransitionOverlap">true</item>
 
         <item name="colorAccent">?colorPrimary</item>
+
+        <!-- NobiFile identity colors -->
+        <item name="colorPrimary">@color/nobi_primary</item>
+        <item name="colorOnPrimary">@color/nobi_on_primary</item>
+        <item name="colorPrimaryContainer">@color/nobi_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/nobi_on_primary_container</item>
+        <item name="colorSecondary">@color/nobi_secondary</item>
+        <item name="colorOnSecondary">@color/nobi_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/nobi_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/nobi_on_secondary_container</item>
+        <item name="colorTertiary">@color/nobi_tertiary</item>
+        <item name="colorOnTertiary">@color/nobi_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/nobi_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/nobi_on_tertiary_container</item>
+        <item name="colorSurface">@color/nobi_surface</item>
+        <item name="colorOnSurface">@color/nobi_on_surface</item>
+        <item name="colorSurfaceVariant">@color/nobi_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/nobi_on_surface_variant</item>
+        <item name="colorOutline">@color/nobi_outline</item>
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MaterialFiles.Material3.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MaterialFiles.Material3.MediumComponent</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MaterialFiles.Material3.LargeComponent</item>
@@ -78,6 +97,25 @@
         <item name="android:windowBackground">@android:color/black</item>
 
         <item name="colorAccent">?colorPrimary</item>
+
+        <!-- NobiFile identity colors -->
+        <item name="colorPrimary">@color/nobi_primary</item>
+        <item name="colorOnPrimary">@color/nobi_on_primary</item>
+        <item name="colorPrimaryContainer">@color/nobi_primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/nobi_on_primary_container</item>
+        <item name="colorSecondary">@color/nobi_secondary</item>
+        <item name="colorOnSecondary">@color/nobi_on_secondary</item>
+        <item name="colorSecondaryContainer">@color/nobi_secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/nobi_on_secondary_container</item>
+        <item name="colorTertiary">@color/nobi_tertiary</item>
+        <item name="colorOnTertiary">@color/nobi_on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/nobi_tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/nobi_on_tertiary_container</item>
+        <item name="colorSurface">@color/nobi_surface</item>
+        <item name="colorOnSurface">@color/nobi_on_surface</item>
+        <item name="colorSurfaceVariant">@color/nobi_surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/nobi_on_surface_variant</item>
+        <item name="colorOutline">@color/nobi_outline</item>
         <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MaterialFiles.Material3.SmallComponent</item>
         <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MaterialFiles.Material3.MediumComponent</item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MaterialFiles.Material3.LargeComponent</item>

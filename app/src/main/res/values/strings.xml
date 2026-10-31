@@ -808,4 +808,9 @@
     <string name="shortcut_ftp_server_title" translatable="false">@string/ftp_server_title</string>
     <string name="about_fork_title">NobiFile fork</string>
     <string name="about_fork_summary">Based on Material Files by Hai Zhang, GPLv3</string>
+    <!-- NobiFile companion apps -->
+    <string name="open_in_nobi_terminal">Open in Nobi Terminal</string>
+    <string name="open_in_nobi_code">Open in Nobi Code</string>
+    <string name="nobi_terminal_not_installed">Nobi Terminal is not installed</string>
+    <string name="nobi_code_not_installed">Nobi Code is not installed</string>
 </resources>

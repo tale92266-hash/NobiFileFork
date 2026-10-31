@@ -12,6 +12,14 @@
         android:title="@string/file_item_action_open_with" />
 
     <item
+        android:id="@+id/action_open_in_nobi_terminal"
+        android:title="@string/open_in_nobi_terminal" />
+
+    <item
+        android:id="@+id/action_open_in_nobi_code"
+        android:title="@string/open_in_nobi_code" />
+
+    <item
         android:id="@+id/action_cut"
         android:title="@string/cut" />
 

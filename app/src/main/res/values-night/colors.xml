@@ -29,4 +29,22 @@
     <color name="file_icon_red">#F28B82</color>
     <color name="file_icon_deep_red">#E8877F</color>
     <color name="file_icon_yellow">#F8CF5C</color>
+    <!-- NobiFile identity palette (dark) -->
+    <color name="nobi_primary">#8B7CF6</color>
+    <color name="nobi_on_primary">#0B1220</color>
+    <color name="nobi_primary_container">#3730A3</color>
+    <color name="nobi_on_primary_container">#E0E7FF</color>
+    <color name="nobi_secondary">#22D3EE</color>
+    <color name="nobi_on_secondary">#082F3A</color>
+    <color name="nobi_secondary_container">#155E75</color>
+    <color name="nobi_on_secondary_container">#CFFAFE</color>
+    <color name="nobi_tertiary">#A78BFA</color>
+    <color name="nobi_on_tertiary">#2E1065</color>
+    <color name="nobi_tertiary_container">#5B21B6</color>
+    <color name="nobi_on_tertiary_container">#EDE9FE</color>
+    <color name="nobi_surface">#0B1220</color>
+    <color name="nobi_on_surface">#E6EDF7</color>
+    <color name="nobi_surface_variant">#1A2438</color>
+    <color name="nobi_on_surface_variant">#94A3B8</color>
+    <color name="nobi_outline">#334155</color>
 </resources>
