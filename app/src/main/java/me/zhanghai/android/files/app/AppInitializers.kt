@@ -30,6 +30,7 @@ import me.zhanghai.android.files.provider.smb.client.Client as SmbClient
 import me.zhanghai.android.files.provider.webdav.client.Client as WebDavClient
 
 val appInitializers = listOf(
+    ::installCrashHandler,
     ::initializeFirebase,
     ::disableHiddenApiChecks,
     ::initializeWebViewDebugging,
@@ -41,6 +42,10 @@ val appInitializers = listOf(
     ::initializeNightMode,
     ::createNotificationChannels
 )
+
+private fun installCrashHandler() {
+    CrashHandler.install()
+}
 
 private fun initializeFirebase() {
 //#ifdef NONFREE
