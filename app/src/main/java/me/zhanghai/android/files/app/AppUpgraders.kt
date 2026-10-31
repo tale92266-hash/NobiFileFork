@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Parcel
 import android.os.Parcelable
+import android.provider.DocumentsContract
 import androidx.annotation.StringRes
 import androidx.core.content.edit
 import com.nobifile.manager.R
@@ -24,6 +25,7 @@ import me.zhanghai.android.files.file.displayName
 import me.zhanghai.android.files.file.storageVolume
 import me.zhanghai.android.files.filelist.FileSortOptions
 import me.zhanghai.android.files.navigation.BookmarkDirectory
+import me.zhanghai.android.files.navigation.NobiTreeTarget
 import me.zhanghai.android.files.navigation.StandardDirectorySettings
 import me.zhanghai.android.files.provider.archive.ArchiveFileSystem
 import me.zhanghai.android.files.provider.common.ByteString
@@ -35,16 +37,45 @@ import me.zhanghai.android.files.provider.linux.LinuxFileSystem
 import me.zhanghai.android.files.provider.root.RootStrategy
 import me.zhanghai.android.files.provider.sftp.SftpFileSystem
 import me.zhanghai.android.files.provider.smb.SmbFileSystem
+import me.zhanghai.android.files.settings.Settings
 import me.zhanghai.android.files.storage.DocumentTree
 import me.zhanghai.android.files.storage.FileSystemRoot
 import me.zhanghai.android.files.storage.PrimaryStorageVolume
+import me.zhanghai.android.files.storage.Storages
 import me.zhanghai.android.files.util.StableUriParceler
 import me.zhanghai.android.files.util.asBase64
+import me.zhanghai.android.files.util.valueCompat
 import me.zhanghai.android.files.util.readParcelable
 import me.zhanghai.android.files.util.readParcelableListCompat
 import me.zhanghai.android.files.util.toBase64
 import me.zhanghai.android.files.util.toByteArray
 import me.zhanghai.android.files.util.use
+
+internal fun removeNobiTreeDuplicateStorages() {
+    // V5 saved a separate storage row when Sam granted a Nobi Code / Nobi
+    // Terminal folder. The sidebar entries open those folders themselves, so
+    // the rows are duplicates. Only the rows are removed; the system grant
+    // itself (persistedUriPermissions) is untouched, so the entries keep
+    // opening their folders directly.
+    val storages = Settings.STORAGES.valueCompat
+    for (storage in storages) {
+        if (storage !is DocumentTree) {
+            continue
+        }
+        val uri = storage.uri.value
+        val matchesTarget = try {
+            NobiTreeTarget.entries.any {
+                it.authority == uri.authority &&
+                    DocumentsContract.getTreeDocumentId(uri) == it.documentId
+            }
+        } catch (e: Exception) {
+            false
+        }
+        if (matchesTarget) {
+            Storages.remove(storage)
+        }
+    }
+}
 
 internal fun upgradeAppTo1_1_0() {
     // Migrate settings.

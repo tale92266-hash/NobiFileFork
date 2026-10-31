@@ -20,11 +20,7 @@ import com.nobifile.manager.databinding.NavigationFragmentBinding
 import me.zhanghai.android.files.file.asDocumentTreeUriOrNull
 import me.zhanghai.android.files.file.takePersistablePermission
 import me.zhanghai.android.files.provider.document.createDocumentTreeRootPath
-import me.zhanghai.android.files.settings.Settings
-import me.zhanghai.android.files.storage.DocumentTree
-import me.zhanghai.android.files.storage.Storages
 import me.zhanghai.android.files.util.startActivitySafe
-import me.zhanghai.android.files.util.valueCompat
 
 class NavigationFragment : Fragment(), NavigationItem.Listener {
     private lateinit var binding: NavigationFragmentBinding
@@ -99,13 +95,10 @@ class NavigationFragment : Fragment(), NavigationItem.Listener {
         if (target == null || treeUri == null) {
             return
         }
+        // Only the system grant is persisted (persistedUriPermissions). The
+        // folder must NOT become a separate storage row: the sidebar entry
+        // itself opens it, and a duplicate row is what V5 wrongly created.
         treeUri.takePersistablePermission()
-        val storages = Settings.STORAGES.valueCompat
-        if (storages.none { it is DocumentTree && it.uri.value == treeUri.value }) {
-            Storages.addOrReplace(
-                DocumentTree(null, getString(target.titleRes), treeUri)
-            )
-        }
         listener.navigateTo(treeUri.value.createDocumentTreeRootPath())
         listener.closeNavigationDrawer()
     }
