@@ -212,7 +212,12 @@ private class NobiTreeItem(private val target: NobiTreeTarget) : NavigationItem(
     override fun getTitle(context: Context): String = context.getString(target.titleRes)
 
     override fun onClick(listener: Listener) {
-        if (target.findCoveringGrant() != null) {
+        val grant = target.findCoveringGrant()
+        NobiTreeGrantDebug.log(
+            "TAP target=${target.name} grants=[${NobiTreeGrantDebug.describeGrants()}] " +
+                "coveringGrant=$grant"
+        )
+        if (grant != null) {
             listener.navigateTo(
                 target.treeUri.asDocumentTreeUri().value.createDocumentTreeRootPath()
             )

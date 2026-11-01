@@ -42,6 +42,7 @@ enum class NobiTreeTarget(
 
     fun findCoveringGrant(): Uri? {
         val targetTreeUriString = treeUri.toString()
+        val wantedId = documentId.trimEnd('/')
         for (permission in contentResolver.persistedUriPermissions) {
             if (!permission.isReadPermission) {
                 continue
@@ -55,9 +56,12 @@ enum class NobiTreeTarget(
             } catch (e: IllegalArgumentException) {
                 null
             } ?: continue
-            if (grantedDocumentId == documentId ||
-                documentId.startsWith("$grantedDocumentId/") ||
-                targetTreeUriString.startsWith(grantedTreeUri.value.toString())
+            val grantedId = grantedDocumentId.trimEnd('/')
+            val grantedTreeUriString = grantedTreeUri.value.toString()
+            if (grantedId == wantedId ||
+                wantedId.startsWith("$grantedId/") ||
+                targetTreeUriString.startsWith(grantedTreeUriString) ||
+                grantedTreeUriString.startsWith(targetTreeUriString)
             ) {
                 return grantedTreeUri.value
             }
