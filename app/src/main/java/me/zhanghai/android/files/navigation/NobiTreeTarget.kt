@@ -2,11 +2,13 @@
  * Copyright (c) 2026 NobiFile contributors
  *
  * Sidebar entries that open a companion app's storage inside NobiFile
- * instead of launching the app: Nobi Code's folder under Android/data, and
- * Nobi Terminal's home directory exposed through its own DocumentsProvider.
- * Both need a one-time Storage Access Framework grant; until Sam grants it,
- * tapping the entry opens the system folder picker prefilled at the target
- * folder. Nothing here assumes the grant exists.
+ * instead of launching the app: Nobi Code's workspace folder and Nobi
+ * Terminal's home directory, each exposed through the app's own
+ * DocumentsProvider. Both need a one-time Storage Access Framework
+ * grant; until Sam grants it, tapping the entry opens the system folder
+ * picker prefilled at the target folder. Nothing here assumes the grant
+ * exists. (Device evidence, 2026-11-01 grant log: Nobi Code's provider
+ * is com.nobicode.editor.documents, not the external-storage provider.)
  */
 
 package me.zhanghai.android.files.navigation
@@ -27,7 +29,8 @@ enum class NobiTreeTarget(
 ) {
     NOBI_CODE(
         R.drawable.nobi_nav_nobicode, R.string.navigation_nobi_code,
-        "com.android.externalstorage.documents", "primary:Android/data/com.nobicode.editor"
+        "com.nobicode.editor.documents",
+        "/data/user/0/com.nobicode.editor/files/public/NobiCode"
     ),
     NOBI_TERMINAL(
         R.drawable.nobi_nav_nobiterminal, R.string.navigation_nobi_terminal,
